@@ -133,7 +133,8 @@ module.exports.startBattle = function(slackData) {
 }
 
 module.exports.endBattle = function() {
-  return stateMachine.endBattle();
+  return stateMachine.logResult(false)
+    .then(stateMachine.endBattle());
 }
 
 var effectivenessMessage = function(mult) {
@@ -186,10 +187,11 @@ var useMoveUser = function(moveName) {
         return stateMachine.doDamageToNpc(totalDamage)
         .then(function(hpRemaining){
           if(parseInt(hpRemaining, 10) <= 0) {
-            return stateMachine.endBattle()
-            .then(function(){
-              return "You Beat Me!";
-            })
+            return stateMachine.logResult(true)
+              .then(stateMachine.endBattle())
+              .then(function(){
+                return "You Beat Me!";
+              })
           }
           textString = textString.replace("{effctv}", effectivenessMessage(multiplier));
           textStringDmg = textStringDmg.replace("{dmg}", totalDamage);
@@ -228,10 +230,11 @@ var useMoveNpc = function() {
         return stateMachine.doDamageToUser(totalDamage)
         .then(function(hpRemaining){
           if(parseInt(hpRemaining, 10) <= 0) {
-            return stateMachine.endBattle()
-            .then(function(){
-              return "You Lost!";
-            })
+            return stateMachine.logResult(false)
+              .then(stateMachine.endBattle())
+              .then(function(){
+                return "You Lost!";
+              })
           }
           textString = textString.replace("{effctv}", effectivenessMessage(multiplier));
           textStringDmg = textStringDmg.replace("{dmg}", totalDamage);
