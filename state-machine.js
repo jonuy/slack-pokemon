@@ -24,7 +24,9 @@ QRedis = {};
 
 QRedis.sadd = Q.nbind(redis.sadd, redis);
 QRedis.hmset = Q.nbind(redis.hmset, redis);
+QRedis.hget = Q.nbind(redis.hget, redis);
 QRedis.hgetall = Q.nbind(redis.hgetall, redis);
+QRedis.hincrby = Q.nbind(redis.hincrby, redis);
 QRedis.exists = Q.nbind(redis.exists, redis);
 QRedis.del = Q.nbind(redis.del, redis);
 QRedis.set = Q.nbind(redis.set, redis);
@@ -139,4 +141,44 @@ module.exports.doDamageToUser = function(damage) {
 }
 module.exports.doDamageToNpc = function(damage) {
   return QRedis.decrby("npc:hp", damage);
+}
+
+/**
+ * Log battle result for historical reference per user.
+ *
+ * @param win
+ *   boolean If user won, then true
+ */
+module.exports.logResult = function(win) {
+  var key,
+      wins,
+      losses;
+
+  wins = win ? 1 : 0;
+  losses = win ? 0 : 1;
+
+  return QRedis.hget("currentBattle", "playerName")
+    .then(function(name) {
+      key = "user:" + name + ":stats";
+      return QRedis.exists(key);
+    })
+    .then(function(exists) {
+      if(!exists) {
+        return QRedis.hmset(key, {
+          "wins": wins,
+          "losses": losses
+        });
+      }
+      else {
+        if (win) {
+          return QRedis.hincrby(key, "wins", 1);
+        }
+        else {
+          return QRedis.hincrby(key, "losses", 1);
+        }
+      }
+    })
+    .then(function() {
+      return QRedis.hincrby(key, "battles", 1);
+    });
 }

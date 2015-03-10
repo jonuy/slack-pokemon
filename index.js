@@ -91,7 +91,7 @@ app.post('/commands', function(request, response){
     battleText.endBattle()
     .then(
       function(){
-        response.send(buildResponse("Battle Over."))
+        response.send(buildResponse("Battle Over. You forfeited."))
       },
       function(err){
         console.log(err);
