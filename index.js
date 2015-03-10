@@ -41,8 +41,8 @@ app.post('/commands', function(request, response){
       + "- `pkmn battle me`: starts a battle\n"
       + "- `pkmn i choose <pokemon>`: chooses a pokemon for the user\n"
       + "- `pkmn use <attack>`: uses an attack\n"
-      + "- `pkmn end battle`: end the battle before someone wins";
-      + "- `pkmn stats <username>`: get a user's battle history"
+      + "- `pkmn end battle`: end the battle before someone wins\n"
+      + "- `pkmn stats <username>`: get a user's battle history";
     response.send(buildResponse(textResponse));
   }
   else if(matchCommands(commands, "CHOOSE")) {
