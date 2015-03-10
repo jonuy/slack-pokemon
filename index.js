@@ -30,9 +30,21 @@ app.get('/', function(request, response) {
 * It doesn't distinguish between different types of errors, but it probably should.
 */
 app.post('/commands', function(request, response){
-  var commands = request.body.text.toLowerCase().split(" ");
+  var commands,
+      moveName,
+      textResponse;
 
-  if(matchCommands(commands, "CHOOSE")) {
+  commands = request.body.text.toLowerCase().split(" ");
+
+  if (matchCommands(commands, "HELP")) {
+    textResponse = "List of commands:\n\n"
+      + "- `pkmn battle me`: starts a battle\n"
+      + "- `pkmn i choose <pokemon>`: chooses a pokemon for the user\n"
+      + "- `pkmn use <attack>`: uses an attack\n"
+      + "- `pkmn end battle`: end the battle before someone wins";
+    response.send(buildResponse(textResponse));
+  }
+  else if(matchCommands(commands, "CHOOSE")) {
     battleText.userChoosePokemon(commands)
     .then(
       function(chosenObject){
@@ -45,7 +57,6 @@ app.post('/commands', function(request, response){
     )
   }
   else if(matchCommands(commands, "ATTACK")) {
-    var moveName;
     if(commands[3]) {
       //for moves that are 2+ words, like 'Flare Blitz' or 'Will O Wisp'
       moveName = commands.slice(2).join('-');
@@ -123,6 +134,7 @@ function buildResponse(text) {
 */
 function matchCommands(commandArray, command) {
   var commandsDict = {
+    "HELP": "help",
     "CHOOSE": "i choose",
     "ATTACK": "use",
     "START": "battle me",
