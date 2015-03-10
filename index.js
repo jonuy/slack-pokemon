@@ -42,6 +42,7 @@ app.post('/commands', function(request, response){
       + "- `pkmn i choose <pokemon>`: chooses a pokemon for the user\n"
       + "- `pkmn use <attack>`: uses an attack\n"
       + "- `pkmn end battle`: end the battle before someone wins";
+      + "- `pkmn stats <username>`: get a user's battle history"
     response.send(buildResponse(textResponse));
   }
   else if(matchCommands(commands, "CHOOSE")) {
@@ -99,6 +100,24 @@ app.post('/commands', function(request, response){
       }
     )
   }
+  else if (matchCommands(commands, "STATS")) {
+    var playerName = commands[2];  // "pkmn stats <playerName>"
+
+    stateMachine.getUserStats(playerName)
+      .then(function(stats) {
+        if (stats) {
+          textResponse = "User " + playerName + " has a record of "
+            + stats.wins + " wins and "
+            + stats.losses + " losses from "
+            + stats.battles + " battles."
+
+          response.send(buildResponse(textResponse));
+        }
+        else {
+          response.send(buildResponse("Player " + playerName + " not found."));
+        }
+      });
+  }
   else {
     battleText.unrecognizedCommand(commands)
     .then(function(text){
@@ -138,7 +157,8 @@ function matchCommands(commandArray, command) {
     "CHOOSE": "i choose",
     "ATTACK": "use",
     "START": "battle me",
-    "END": "end battle"
+    "END": "end battle",
+    "STATS": "stats"
   }
   var cmdString = commandArray.join(" ").toLowerCase().replace("pkmn ", "");
   return cmdString.indexOf(commandsDict[command]) === 0;

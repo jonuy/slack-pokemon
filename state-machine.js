@@ -27,6 +27,7 @@ QRedis.hmset = Q.nbind(redis.hmset, redis);
 QRedis.hget = Q.nbind(redis.hget, redis);
 QRedis.hgetall = Q.nbind(redis.hgetall, redis);
 QRedis.hincrby = Q.nbind(redis.hincrby, redis);
+QRedis.keys = Q.nbind(redis.keys, redis);
 QRedis.exists = Q.nbind(redis.exists, redis);
 QRedis.del = Q.nbind(redis.del, redis);
 QRedis.set = Q.nbind(redis.set, redis);
@@ -181,4 +182,11 @@ module.exports.logResult = function(win) {
     .then(function() {
       return QRedis.hincrby(key, "battles", 1);
     });
+}
+
+/**
+ * Get the battle stats for a single user.
+ */
+module.exports.getUserStats = function(playerName) {
+  return QRedis.hgetall("user:" + playerName + ":stats");
 }
